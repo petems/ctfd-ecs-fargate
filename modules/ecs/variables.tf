@@ -117,6 +117,13 @@ variable "enable_execute_command" {
   default     = false
 }
 
+# Networking
+variable "assign_public_ip" {
+  description = "Assign public IPs to tasks (useful when running in public subnets without NAT)"
+  type        = bool
+  default     = false
+}
+
 # Auto Scaling Configuration
 variable "enable_auto_scaling" {
   description = "Enable auto scaling for ECS service"

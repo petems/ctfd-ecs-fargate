@@ -183,9 +183,6 @@ resource "aws_db_instance" "main" {
     Name = "${var.project_name}-${var.environment}-db"
   })
 
-  lifecycle {
-    prevent_destroy = true
-  }
 }
 
 # CloudWatch Alarms for RDS

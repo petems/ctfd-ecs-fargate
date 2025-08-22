@@ -155,6 +155,7 @@ module "ecs" {
   alb_target_group_arn        = module.load_balancer.target_group_arn
   ecs_task_execution_role_arn = module.security.ecs_task_execution_role_arn
   ecs_task_role_arn           = module.security.ecs_task_role_arn
+  assign_public_ip            = true
 
   # Container configuration
   container_image  = var.ctfd_container_image
