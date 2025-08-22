@@ -285,3 +285,116 @@ For issues and questions:
 - Complete ECS Fargate deployment
 - All core infrastructure components
 - Monitoring and security features
+
+<!-- BEGIN_TF_DOCS -->
+## Requirements
+
+| Name | Version |
+|------|---------|
+| <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 1.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | ~> 5.0 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | ~> 3.1 |
+
+## Providers
+
+No providers.
+
+## Modules
+
+| Name | Source | Version |
+|------|--------|---------|
+| <a name="module_database"></a> [database](#module\_database) | ./modules/database | n/a |
+| <a name="module_ecs"></a> [ecs](#module\_ecs) | ./modules/ecs | n/a |
+| <a name="module_elasticache"></a> [elasticache](#module\_elasticache) | ./modules/elasticache | n/a |
+| <a name="module_load_balancer"></a> [load\_balancer](#module\_load\_balancer) | ./modules/load-balancer | n/a |
+| <a name="module_monitoring"></a> [monitoring](#module\_monitoring) | ./modules/monitoring | n/a |
+| <a name="module_networking"></a> [networking](#module\_networking) | ./modules/networking | n/a |
+| <a name="module_security"></a> [security](#module\_security) | ./modules/security | n/a |
+| <a name="module_storage"></a> [storage](#module\_storage) | ./modules/storage | n/a |
+
+## Resources
+
+No resources.
+
+## Inputs
+
+| Name | Description | Type | Default | Required |
+|------|-------------|------|---------|:--------:|
+| <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | Availability zones | `list(string)` | <pre>[<br/>  "us-west-2a",<br/>  "us-west-2b",<br/>  "us-west-2c"<br/>]</pre> | no |
+| <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region | `string` | `"us-west-2"` | no |
+| <a name="input_backup_retention_period"></a> [backup\_retention\_period](#input\_backup\_retention\_period) | RDS backup retention period in days | `number` | `7` | no |
+| <a name="input_billing_alert_threshold"></a> [billing\_alert\_threshold](#input\_billing\_alert\_threshold) | Billing alert threshold in USD | `number` | `100` | no |
+| <a name="input_create_ecr_repository"></a> [create\_ecr\_repository](#input\_create\_ecr\_repository) | Create ECR repository for custom CTFd images | `bool` | `true` | no |
+| <a name="input_create_route53_zone"></a> [create\_route53\_zone](#input\_create\_route53\_zone) | Create new Route53 hosted zone | `bool` | `true` | no |
+| <a name="input_ctfd_container_image"></a> [ctfd\_container\_image](#input\_ctfd\_container\_image) | CTFd container image | `string` | `"ctfd/ctfd:latest"` | no |
+| <a name="input_ctfd_container_port"></a> [ctfd\_container\_port](#input\_ctfd\_container\_port) | CTFd container port | `number` | `8000` | no |
+| <a name="input_database_subnet_cidrs"></a> [database\_subnet\_cidrs](#input\_database\_subnet\_cidrs) | CIDR blocks for database subnets | `list(string)` | <pre>[<br/>  "10.0.21.0/24",<br/>  "10.0.22.0/24",<br/>  "10.0.23.0/24"<br/>]</pre> | no |
+| <a name="input_db_instance_class"></a> [db\_instance\_class](#input\_db\_instance\_class) | RDS instance class | `string` | `"db.t3.micro"` | no |
+| <a name="input_db_name"></a> [db\_name](#input\_db\_name) | Database name | `string` | `"ctfd"` | no |
+| <a name="input_db_username"></a> [db\_username](#input\_db\_username) | Database username | `string` | `"ctfduser"` | no |
+| <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | Domain name for the CTFd application | `string` | n/a | yes |
+| <a name="input_ecs_cpu"></a> [ecs\_cpu](#input\_ecs\_cpu) | CPU units for ECS task | `number` | `256` | no |
+| <a name="input_ecs_desired_count"></a> [ecs\_desired\_count](#input\_ecs\_desired\_count) | Desired number of ECS tasks | `number` | `1` | no |
+| <a name="input_ecs_max_capacity"></a> [ecs\_max\_capacity](#input\_ecs\_max\_capacity) | Maximum number of ECS tasks | `number` | `10` | no |
+| <a name="input_ecs_memory"></a> [ecs\_memory](#input\_ecs\_memory) | Memory for ECS task | `number` | `512` | no |
+| <a name="input_ecs_min_capacity"></a> [ecs\_min\_capacity](#input\_ecs\_min\_capacity) | Minimum number of ECS tasks | `number` | `1` | no |
+| <a name="input_enable_billing_alerts"></a> [enable\_billing\_alerts](#input\_enable\_billing\_alerts) | Enable billing alerts | `bool` | `false` | no |
+| <a name="input_enable_deletion_protection"></a> [enable\_deletion\_protection](#input\_enable\_deletion\_protection) | Enable deletion protection for RDS | `bool` | `true` | no |
+| <a name="input_enable_elasticache_redis"></a> [enable\_elasticache\_redis](#input\_enable\_elasticache\_redis) | Enable ElastiCache Redis cluster | `bool` | `true` | no |
+| <a name="input_enable_monitoring"></a> [enable\_monitoring](#input\_enable\_monitoring) | Enable enhanced monitoring | `bool` | `true` | no |
+| <a name="input_environment"></a> [environment](#input\_environment) | Environment name | `string` | `"dev"` | no |
+| <a name="input_existing_database_subnet_ids"></a> [existing\_database\_subnet\_ids](#input\_existing\_database\_subnet\_ids) | IDs of existing database subnets | `list(string)` | `[]` | no |
+| <a name="input_existing_private_subnet_ids"></a> [existing\_private\_subnet\_ids](#input\_existing\_private\_subnet\_ids) | IDs of existing private subnets | `list(string)` | `[]` | no |
+| <a name="input_existing_public_subnet_ids"></a> [existing\_public\_subnet\_ids](#input\_existing\_public\_subnet\_ids) | IDs of existing public subnets | `list(string)` | `[]` | no |
+| <a name="input_existing_route53_zone_id"></a> [existing\_route53\_zone\_id](#input\_existing\_route53\_zone\_id) | ID of existing Route53 zone (required if create\_route53\_zone = false) | `string` | `""` | no |
+| <a name="input_existing_vpc_id"></a> [existing\_vpc\_id](#input\_existing\_vpc\_id) | ID of existing VPC to use (if provided, skips VPC creation) | `string` | `""` | no |
+| <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | CloudWatch log retention in days | `number` | `7` | no |
+| <a name="input_notification_email_addresses"></a> [notification\_email\_addresses](#input\_notification\_email\_addresses) | List of email addresses for CloudWatch alarms | `list(string)` | `[]` | no |
+| <a name="input_owner"></a> [owner](#input\_owner) | Owner/Team responsible for the infrastructure | `string` | `"devops"` | no |
+| <a name="input_private_subnet_cidrs"></a> [private\_subnet\_cidrs](#input\_private\_subnet\_cidrs) | CIDR blocks for private subnets | `list(string)` | <pre>[<br/>  "10.0.11.0/24",<br/>  "10.0.12.0/24",<br/>  "10.0.13.0/24"<br/>]</pre> | no |
+| <a name="input_project_name"></a> [project\_name](#input\_project\_name) | Name of the project | `string` | `"ctfd"` | no |
+| <a name="input_public_subnet_cidrs"></a> [public\_subnet\_cidrs](#input\_public\_subnet\_cidrs) | CIDR blocks for public subnets | `list(string)` | <pre>[<br/>  "10.0.1.0/24",<br/>  "10.0.2.0/24",<br/>  "10.0.3.0/24"<br/>]</pre> | no |
+| <a name="input_redis_auth_token"></a> [redis\_auth\_token](#input\_redis\_auth\_token) | Auth token for Redis cluster (optional) | `string` | `""` | no |
+| <a name="input_redis_automatic_failover"></a> [redis\_automatic\_failover](#input\_redis\_automatic\_failover) | Enable automatic failover for Redis cluster | `bool` | `true` | no |
+| <a name="input_redis_multi_az"></a> [redis\_multi\_az](#input\_redis\_multi\_az) | Enable Multi-AZ for Redis cluster | `bool` | `true` | no |
+| <a name="input_redis_node_type"></a> [redis\_node\_type](#input\_redis\_node\_type) | ElastiCache Redis node type | `string` | `"cache.t4.micro"` | no |
+| <a name="input_redis_num_cache_nodes"></a> [redis\_num\_cache\_nodes](#input\_redis\_num\_cache\_nodes) | Number of cache nodes in Redis cluster | `number` | `2` | no |
+| <a name="input_vpc_cidr"></a> [vpc\_cidr](#input\_vpc\_cidr) | CIDR block for VPC | `string` | `"10.0.0.0/16"` | no |
+
+## Outputs
+
+| Name | Description |
+|------|-------------|
+| <a name="output_acm_certificate_arn"></a> [acm\_certificate\_arn](#output\_acm\_certificate\_arn) | ARN of the ACM SSL certificate |
+| <a name="output_application_domain"></a> [application\_domain](#output\_application\_domain) | Domain name for the CTFd application |
+| <a name="output_application_url"></a> [application\_url](#output\_application\_url) | URL to access the CTFd application |
+| <a name="output_cloudwatch_dashboard_url"></a> [cloudwatch\_dashboard\_url](#output\_cloudwatch\_dashboard\_url) | URL to the CloudWatch dashboard |
+| <a name="output_cloudwatch_log_group"></a> [cloudwatch\_log\_group](#output\_cloudwatch\_log\_group) | CloudWatch log group for the application |
+| <a name="output_container_image"></a> [container\_image](#output\_container\_image) | Container image being used |
+| <a name="output_database_endpoint"></a> [database\_endpoint](#output\_database\_endpoint) | RDS database endpoint |
+| <a name="output_database_secret_arn"></a> [database\_secret\_arn](#output\_database\_secret\_arn) | ARN of the database credentials secret in Secrets Manager |
+| <a name="output_deployment_region"></a> [deployment\_region](#output\_deployment\_region) | AWS region where resources are deployed |
+| <a name="output_ecr_repository_url"></a> [ecr\_repository\_url](#output\_ecr\_repository\_url) | URL of the ECR repository |
+| <a name="output_ecs_cluster_arn"></a> [ecs\_cluster\_arn](#output\_ecs\_cluster\_arn) | ARN of the ECS cluster |
+| <a name="output_ecs_cluster_name"></a> [ecs\_cluster\_name](#output\_ecs\_cluster\_name) | Name of the ECS cluster |
+| <a name="output_ecs_service_name"></a> [ecs\_service\_name](#output\_ecs\_service\_name) | Name of the ECS service |
+| <a name="output_environment"></a> [environment](#output\_environment) | Environment name |
+| <a name="output_load_balancer_arn"></a> [load\_balancer\_arn](#output\_load\_balancer\_arn) | ARN of the Application Load Balancer |
+| <a name="output_load_balancer_dns_name"></a> [load\_balancer\_dns\_name](#output\_load\_balancer\_dns\_name) | DNS name of the Application Load Balancer |
+| <a name="output_load_balancer_zone_id"></a> [load\_balancer\_zone\_id](#output\_load\_balancer\_zone\_id) | Zone ID of the Application Load Balancer |
+| <a name="output_private_subnet_ids"></a> [private\_subnet\_ids](#output\_private\_subnet\_ids) | IDs of the private subnets |
+| <a name="output_public_subnet_ids"></a> [public\_subnet\_ids](#output\_public\_subnet\_ids) | IDs of the public subnets |
+| <a name="output_redis_endpoint"></a> [redis\_endpoint](#output\_redis\_endpoint) | ElastiCache Redis primary endpoint |
+| <a name="output_redis_port"></a> [redis\_port](#output\_redis\_port) | ElastiCache Redis port |
+| <a name="output_redis_security_group_id"></a> [redis\_security\_group\_id](#output\_redis\_security\_group\_id) | ElastiCache Redis security group ID |
+| <a name="output_redis_url"></a> [redis\_url](#output\_redis\_url) | ElastiCache Redis connection URL |
+| <a name="output_route53_name_servers"></a> [route53\_name\_servers](#output\_route53\_name\_servers) | Name servers for the Route53 hosted zone (configure these in your domain registrar) |
+| <a name="output_route53_zone_id"></a> [route53\_zone\_id](#output\_route53\_zone\_id) | ID of the Route53 hosted zone |
+| <a name="output_s3_bucket_arn"></a> [s3\_bucket\_arn](#output\_s3\_bucket\_arn) | ARN of the S3 bucket for file uploads |
+| <a name="output_s3_bucket_name"></a> [s3\_bucket\_name](#output\_s3\_bucket\_name) | Name of the S3 bucket for file uploads |
+| <a name="output_security_groups"></a> [security\_groups](#output\_security\_groups) | Security group information |
+| <a name="output_setup_instructions"></a> [setup\_instructions](#output\_setup\_instructions) | Quick setup instructions |
+| <a name="output_sns_topic_arn"></a> [sns\_topic\_arn](#output\_sns\_topic\_arn) | ARN of the SNS topic for alerts |
+| <a name="output_vpc_cidr_block"></a> [vpc\_cidr\_block](#output\_vpc\_cidr\_block) | CIDR block of the VPC |
+| <a name="output_vpc_id"></a> [vpc\_id](#output\_vpc\_id) | ID of the VPC |
+<!-- END_TF_DOCS -->
