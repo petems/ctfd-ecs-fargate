@@ -21,7 +21,7 @@ resource "aws_sns_topic_policy" "alerts" {
         Principal = {
           Service = "cloudwatch.amazonaws.com"
         }
-        Action = "sns:Publish"
+        Action   = "sns:Publish"
         Resource = aws_sns_topic.alerts[0].arn
         Condition = {
           StringEquals = {
@@ -49,17 +49,14 @@ resource "aws_sns_topic_subscription" "external" {
   endpoint  = var.external_notification_endpoints[count.index].endpoint
 
   # Optional endpoint configuration
-  dynamic "delivery_policy" {
-    for_each = var.external_notification_endpoints[count.index].delivery_policy != null ? [1] : []
-    content {
-      healthy_retry_policy {
-        num_retries         = var.external_notification_endpoints[count.index].delivery_policy.num_retries
-        num_max_delay_retries = var.external_notification_endpoints[count.index].delivery_policy.num_max_delay_retries
-        min_delay_target      = var.external_notification_endpoints[count.index].delivery_policy.min_delay_target
-        max_delay_target      = var.external_notification_endpoints[count.index].delivery_policy.max_delay_target
-      }
+  delivery_policy = var.external_notification_endpoints[count.index].delivery_policy != null ? jsonencode({
+    healthy_retry_policy = {
+      num_retries           = var.external_notification_endpoints[count.index].delivery_policy.num_retries
+      num_max_delay_retries = var.external_notification_endpoints[count.index].delivery_policy.num_max_delay_retries
+      min_delay_target      = var.external_notification_endpoints[count.index].delivery_policy.min_delay_target
+      max_delay_target      = var.external_notification_endpoints[count.index].delivery_policy.max_delay_target
     }
-  }
+  }) : null
 }
 
 # Get current AWS account ID
@@ -136,10 +133,10 @@ resource "aws_cloudwatch_dashboard" "main" {
         width  = 24
         height = 6
         properties = {
-          query   = "SOURCE '${var.cloudwatch_log_group_name}'\n| fields @timestamp, @message\n| sort @timestamp desc\n| limit 100"
-          region  = var.aws_region
-          title   = "Recent Application Logs"
-          view    = "table"
+          query  = "SOURCE '${var.cloudwatch_log_group_name}'\n| fields @timestamp, @message\n| sort @timestamp desc\n| limit 100"
+          region = var.aws_region
+          title  = "Recent Application Logs"
+          view   = "table"
         }
       }
     ]
@@ -180,18 +177,18 @@ resource "aws_cloudwatch_log_group" "custom_metrics" {
 
 # X-Ray Service Map (if enabled)
 resource "aws_xray_sampling_rule" "main" {
-  count       = var.enable_xray ? 1 : 0
-  rule_name   = "${var.project_name}-${var.environment}-sampling"
-  priority    = 9000
-  version     = 1
-  reservoir   = 1
-  fixed_rate  = var.xray_sampling_rate
-  url_path    = "*"
-  host        = "*"
-  http_method = "*"
-  service_type = "*"
-  service_name = "*"
-  resource_arn = "*"
+  count           = var.enable_xray ? 1 : 0
+  rule_name       = "${var.project_name}-${var.environment}-sampling"
+  priority        = 9000
+  version         = 1
+  reservoir_size  = 1
+  fixed_rate      = var.xray_sampling_rate
+  url_path        = "*"
+  host            = "*"
+  http_method     = "*"
+  service_type    = "*"
+  service_name    = "*"
+  resource_arn    = "*"
 
   tags = var.tags
 }

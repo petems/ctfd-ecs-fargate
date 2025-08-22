@@ -1,31 +1,31 @@
 output "vpc_id" {
   description = "ID of the VPC"
-  value       = aws_vpc.main.id
+  value       = local.vpc_id
 }
 
 output "vpc_cidr_block" {
   description = "CIDR block of the VPC"
-  value       = aws_vpc.main.cidr_block
+  value       = local.vpc_cidr_block
 }
 
 output "internet_gateway_id" {
   description = "ID of the Internet Gateway"
-  value       = aws_internet_gateway.main.id
+  value       = length(aws_internet_gateway.main) > 0 ? aws_internet_gateway.main[0].id : null
 }
 
 output "public_subnet_ids" {
   description = "IDs of the public subnets"
-  value       = aws_subnet.public[*].id
+  value       = length(var.existing_public_subnet_ids) > 0 ? var.existing_public_subnet_ids : aws_subnet.public[*].id
 }
 
 output "private_subnet_ids" {
   description = "IDs of the private subnets"
-  value       = aws_subnet.private[*].id
+  value       = length(var.existing_private_subnet_ids) > 0 ? var.existing_private_subnet_ids : aws_subnet.private[*].id
 }
 
 output "database_subnet_ids" {
   description = "IDs of the database subnets"
-  value       = aws_subnet.database[*].id
+  value       = length(var.existing_database_subnet_ids) > 0 ? var.existing_database_subnet_ids : aws_subnet.database[*].id
 }
 
 output "public_subnet_cidrs" {

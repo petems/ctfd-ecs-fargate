@@ -1,0 +1,49 @@
+name: Validate Terraform Configuration
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: Validate Terraform Configuration
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.0"
+
+      - name: Terraform Format Check
+        uses: dflook/terraform-fmt-check@v2
+        with:
+          path: .
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        uses: dflook/terraform-validate@v2
+        with:
+          path: .
+
+      - name: Validate Examples
+        run: |
+          for example in examples/*/; do
+            if [ -d "$example" ]; then
+              echo "Validating example: $example"
+              cd "$example"
+              terraform init
+              terraform validate
+              cd ../..
+            fi
+          done

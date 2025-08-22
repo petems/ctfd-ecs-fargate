@@ -1,7 +1,8 @@
 # Data source for Route53 zone (if not creating)
 data "aws_route53_zone" "main" {
-  count = var.create_route53_zone ? 0 : 1
-  name  = var.domain_name
+  count   = var.create_route53_zone ? 0 : 1
+  zone_id = var.route53_zone_id != "" ? var.route53_zone_id : null
+  name    = var.route53_zone_id == "" ? var.domain_name : null
 }
 
 # Route53 Hosted Zone
@@ -21,10 +22,10 @@ locals {
 
 # ACM Certificate
 resource "aws_acm_certificate" "main" {
-  count             = var.create_acm_certificate ? 1 : 0
-  domain_name       = var.domain_name
+  count                     = var.create_acm_certificate ? 1 : 0
+  domain_name               = var.domain_name
   subject_alternative_names = var.certificate_subject_alternative_names
-  validation_method = "DNS"
+  validation_method         = "DNS"
 
   lifecycle {
     create_before_destroy = true
@@ -55,8 +56,8 @@ resource "aws_route53_record" "cert_validation" {
 
 # Certificate validation
 resource "aws_acm_certificate_validation" "main" {
-  count           = var.create_acm_certificate ? 1 : 0
-  certificate_arn = aws_acm_certificate.main[0].arn
+  count                   = var.create_acm_certificate ? 1 : 0
+  certificate_arn         = aws_acm_certificate.main[0].arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 
   timeouts {
@@ -73,9 +74,9 @@ resource "aws_lb" "main" {
   subnets            = var.public_subnet_ids
 
   enable_deletion_protection       = var.enable_deletion_protection
-  idle_timeout                    = var.idle_timeout
+  idle_timeout                     = var.idle_timeout
   enable_cross_zone_load_balancing = var.enable_cross_zone_load_balancing
-  enable_http2                    = var.enable_http2
+  enable_http2                     = var.enable_http2
 
   dynamic "access_logs" {
     for_each = var.enable_access_logs ? [1] : []

@@ -1,290 +1,287 @@
-# CTFd ECS Fargate Infrastructure
+# CTFd ECS Fargate Terraform Module
 
-A complete Terraform module for deploying CTFd (Capture The Flag platform) on AWS using ECS Fargate with supporting infrastructure including RDS database, load balancing, SSL termination, and comprehensive monitoring.
+A comprehensive Terraform module for deploying CTFd (Capture The Flag framework) on AWS ECS Fargate with a complete infrastructure stack.
+
+## Features
+
+- **ECS Fargate**: Containerized CTFd application with auto-scaling
+- **Load Balancer**: Application Load Balancer with SSL/TLS termination
+- **Database**: RDS PostgreSQL with automated backups and monitoring
+- **Caching**: ElastiCache Redis cluster for session management
+- **Storage**: S3 bucket for file uploads and static assets
+- **Networking**: VPC with public, private, and database subnets
+- **Security**: IAM roles, security groups, and Secrets Manager
+- **Monitoring**: CloudWatch dashboards, alarms, and logging
+- **DNS**: Route53 hosted zone and SSL certificate management
+- **Cost Optimization**: Development vs production configurations
 
 ## Architecture
 
 ```
-Internet -> Route53 DNS -> ALB (SSL) -> ECS Fargate -> RDS MySQL
-                |                          |
-            ACM Certificate            S3 Storage
-                |                          |
-         CloudWatch Monitoring      CloudWatch Logs
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   Route53 DNS   │    │   CloudFront    │    │   S3 Bucket     │
+│                 │    │   (Optional)    │    │   (Static)      │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
+         │                       │                       │
+         └───────────────────────┼───────────────────────┘
+                                 │
+                    ┌─────────────────┐
+                    │   ALB + SSL     │
+                    │   Certificate   │
+                    └─────────────────┘
+                                 │
+                    ┌─────────────────┐
+                    │   ECS Fargate   │
+                    │   (CTFd App)    │
+                    └─────────────────┘
+                                 │
+         ┌───────────────────────┼───────────────────────┐
+         │                       │                       │
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│   RDS           │    │   ElastiCache   │    │   CloudWatch    │
+│   PostgreSQL    │    │   Redis         │    │   Monitoring    │
+└─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
-
-## Features
-
-- **🚀 Production-Ready**: Multi-AZ deployment with auto-scaling and health monitoring
-- **🔒 Secure**: SSL termination, encrypted storage, network isolation, IAM least-privilege
-- **📊 Observable**: CloudWatch dashboards, log aggregation, performance monitoring
-- **💰 Cost-Optimized**: Configurable instance sizes, storage lifecycle policies
-- **🔧 Modular**: Reusable components with flexible configuration
-- **📱 Scalable**: Auto-scaling based on CPU/memory utilization
 
 ## Quick Start
 
 ### Prerequisites
 
-- AWS CLI configured with appropriate permissions
 - Terraform >= 1.0
-- Domain name (for SSL certificate)
+- AWS CLI configured
+- Domain name for your CTFd instance
 
 ### Basic Usage
 
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd ctfd-ecs-fargate
+   ```
+
+2. **Copy the example configuration**:
+   ```bash
+   cp terraform.tfvars.example terraform.tfvars
+   ```
+
+3. **Update the configuration**:
+   ```hcl
+   # Update these values in terraform.tfvars
+   project_name = "my-ctfd"
+   environment  = "dev"
+   domain_name  = "ctfd.yourdomain.com"
+   ```
+
+4. **Initialize and apply**:
+   ```bash
+   terraform init
+   terraform plan
+   terraform apply
+   ```
+
+### Example Configurations
+
+#### Development Environment
 ```hcl
-module "ctfd_infrastructure" {
-  source = "github.com/your-org/ctfd-ecs-fargate"
+module "ctfd" {
+  source = "./modules/ctfd-ecs-fargate"
 
-  # Basic Configuration
-  project_name = "my-ctf"
-  environment  = "prod"
-  aws_region   = "us-west-2"
-  domain_name  = "ctf.example.com"
-
-  # Database Configuration
-  db_instance_class = "db.t3.small"
+  project_name = "ctfd-dev"
+  environment  = "dev"
+  domain_name  = "ctfd-dev.example.com"
   
-  # Container Configuration
-  ecs_cpu          = 512
-  ecs_memory       = 1024
-  ecs_desired_count = 2
-
-  # Notification Configuration
-  notification_email_addresses = ["admin@example.com"]
-
-  tags = {
-    Owner = "security-team"
-  }
+  # Cost-optimized settings
+  ecs_cpu         = 256
+  ecs_memory      = 512
+  db_instance_class = "db.t3.micro"
+  
+  # Development features
+  enable_deletion_protection = false
+  backup_retention_period    = 1
+  log_retention_days        = 7
 }
 ```
 
-### Deployment Steps
-
-1. **Configure your variables** in a `terraform.tfvars` file:
+#### Production Environment
 ```hcl
-project_name = "my-ctf"
-environment  = "prod"
-aws_region   = "us-west-2"
-domain_name  = "ctf.example.com"
-db_instance_class = "db.t3.small"
-notification_email_addresses = ["admin@example.com"]
+module "ctfd" {
+  source = "./modules/ctfd-ecs-fargate"
+
+  project_name = "ctfd-prod"
+  environment  = "prod"
+  domain_name  = "ctfd.example.com"
+  
+  # Production settings
+  ecs_cpu         = 1024
+  ecs_memory      = 2048
+  db_instance_class = "db.t3.medium"
+  
+  # Production features
+  enable_deletion_protection = true
+  backup_retention_period    = 30
+  log_retention_days        = 90
+  multi_az                  = true
+}
 ```
 
-2. **Initialize and apply**:
-```bash
-terraform init
-terraform plan
-terraform apply
+## Module Structure
+
+```
+ctfd-ecs-fargate/
+├── main.tf                 # Main module configuration
+├── variables.tf            # Input variables
+├── outputs.tf              # Output values
+├── versions.tf             # Terraform and provider versions
+├── backend.tf              # Backend configuration
+├── terraform.tfvars.example # Example variable values
+├── README.md               # This file
+├── LICENSE                 # License file
+├── modules/                # Sub-modules
+│   ├── networking/         # VPC, subnets, routing
+│   ├── security/           # IAM roles, security groups
+│   ├── storage/            # S3 bucket, ECR repository
+│   ├── database/           # RDS PostgreSQL
+│   ├── elasticache/        # Redis cluster
+│   ├── load-balancer/      # ALB, SSL, Route53
+│   ├── ecs/                # ECS cluster and service
+│   └── monitoring/         # CloudWatch, alarms
+└── examples/               # Usage examples
+    ├── basic/              # Basic deployment
+    └── existing-resources/ # Using existing resources
 ```
 
-3. **Configure DNS** (if using external registrar):
-   - Update your domain's name servers to the ones shown in the Terraform output
-
-4. **Access your CTFd instance**:
-   - Navigate to `https://your-domain.com`
-   - Complete the CTFd setup wizard
-
-## Configuration
-
-### Input Variables
+## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
-| project_name | Name of the project | `string` | n/a | yes |
-| environment | Environment name (dev, staging, prod) | `string` | n/a | yes |
+| project_name | Name of the project | `string` | `"ctfd"` | yes |
+| environment | Environment name | `string` | `"dev"` | yes |
+| domain_name | Domain name for the CTFd application | `string` | n/a | yes |
 | aws_region | AWS region | `string` | `"us-west-2"` | no |
-| domain_name | Domain name for the application | `string` | n/a | yes |
 | vpc_cidr | CIDR block for VPC | `string` | `"10.0.0.0/16"` | no |
 | availability_zones | Availability zones | `list(string)` | `["us-west-2a", "us-west-2b", "us-west-2c"]` | no |
+| ecs_cpu | CPU units for ECS tasks | `number` | `256` | no |
+| ecs_memory | Memory for ECS tasks (MB) | `number` | `512` | no |
 | db_instance_class | RDS instance class | `string` | `"db.t3.micro"` | no |
-| db_name | Database name | `string` | `"ctfd"` | no |
-| db_username | Database username | `string` | `"ctfduser"` | no |
-| ecs_cpu | CPU units for ECS task | `number` | `256` | no |
-| ecs_memory | Memory for ECS task | `number` | `512` | no |
-| ecs_desired_count | Desired number of ECS tasks | `number` | `1` | no |
-| ecs_max_capacity | Maximum number of ECS tasks | `number` | `10` | no |
-| ctfd_container_image | CTFd container image | `string` | `"ctfd/ctfd:latest"` | no |
-| enable_deletion_protection | Enable deletion protection | `bool` | `true` | no |
-| backup_retention_period | RDS backup retention (days) | `number` | `7` | no |
-| notification_email_addresses | Email addresses for alerts | `list(string)` | `[]` | no |
-| enable_monitoring | Enable monitoring dashboard | `bool` | `true` | no |
-| log_retention_days | CloudWatch log retention | `number` | `7` | no |
+| enable_elasticache_redis | Enable ElastiCache Redis | `bool` | `true` | no |
+| enable_monitoring | Enable CloudWatch monitoring | `bool` | `true` | no |
+| enable_deletion_protection | Enable RDS deletion protection | `bool` | `false` | no |
 
-### Outputs
+## Outputs
 
 | Name | Description |
 |------|-------------|
 | application_url | URL to access the CTFd application |
-| load_balancer_dns_name | DNS name of the load balancer |
-| route53_name_servers | Name servers for Route53 zone |
+| load_balancer_dns_name | DNS name of the Application Load Balancer |
 | database_endpoint | RDS database endpoint |
+| redis_endpoint | ElastiCache Redis endpoint |
 | ecs_cluster_name | Name of the ECS cluster |
 | s3_bucket_name | Name of the S3 bucket |
-| cloudwatch_dashboard_url | URL to CloudWatch dashboard |
 
-## Module Architecture
+## Security
 
-### Components
+This module implements security best practices:
 
-- **`modules/networking/`**: VPC, subnets, gateways, and routing
-- **`modules/security/`**: Security groups, IAM roles, and policies
-- **`modules/database/`**: RDS MySQL with backups and monitoring
-- **`modules/storage/`**: S3 bucket and ECR repository
-- **`modules/ecs/`**: ECS Fargate cluster, service, and tasks
-- **`modules/load-balancer/`**: ALB, target groups, and SSL termination
-- **`modules/monitoring/`**: CloudWatch dashboards, alarms, and SNS
+- **Network Security**: Private subnets for application and database tiers
+- **IAM Roles**: Least-privilege access with specific permissions
+- **Secrets Management**: Database credentials stored in AWS Secrets Manager
+- **SSL/TLS**: HTTPS with ACM certificates
+- **Security Groups**: Restrictive firewall rules
+- **Encryption**: Data encrypted at rest and in transit
 
-### Security Features
+## Monitoring
 
-- **Network Isolation**: Private subnets for application and database
-- **Encryption**: SSL/TLS in transit, AES256 at rest
-- **Access Control**: IAM roles with least-privilege permissions
-- **Secret Management**: AWS Secrets Manager for credentials
-- **Monitoring**: Comprehensive logging and alerting
+The module includes comprehensive monitoring:
 
-### Cost Considerations
+- **CloudWatch Dashboards**: Application and infrastructure metrics
+- **Alarms**: CPU, memory, and error rate monitoring
+- **Logging**: Centralized logging with retention policies
+- **Billing Alerts**: Cost monitoring and alerts
+- **X-Ray Tracing**: Distributed tracing (optional)
 
-- **Development**: Use smaller instance sizes and single NAT gateway
-- **Production**: Enable Multi-AZ, larger instances, enhanced monitoring
-- **Storage**: Lifecycle policies automatically transition to cheaper storage
+## Cost Optimization
 
-## Advanced Configuration
+The module includes cost optimization features:
 
-### Custom Container Images
-
-Build and push custom CTFd images to the included ECR repository:
-
-```bash
-# Get ECR login
-aws ecr get-login-password --region us-west-2 | docker login --username AWS --password-stdin <account-id>.dkr.ecr.us-west-2.amazonaws.com
-
-# Build and push
-docker build -t my-ctfd .
-docker tag my-ctfd:latest <account-id>.dkr.ecr.us-west-2.amazonaws.com/<repo-name>:latest
-docker push <account-id>.dkr.ecr.us-west-2.amazonaws.com/<repo-name>:latest
-```
-
-### External Notifications
-
-Configure external notification endpoints (Slack, webhooks, etc.):
-
-```hcl
-module "ctfd_infrastructure" {
-  # ... other configuration
-
-  # In the monitoring module call
-  external_notification_endpoints = [
-    {
-      protocol = "https"
-      endpoint = "https://hooks.slack.com/services/YOUR/SLACK/WEBHOOK"
-    },
-    {
-      protocol = "lambda"
-      endpoint = "arn:aws:lambda:region:account:function:notification-handler"
-    }
-  ]
-}
-```
-
-### Multi-Environment Setup
-
-Use Terraform workspaces or separate configurations:
-
-```bash
-# Development
-terraform workspace new dev
-terraform apply -var="environment=dev" -var="db_instance_class=db.t3.micro"
-
-# Production  
-terraform workspace new prod
-terraform apply -var="environment=prod" -var="db_instance_class=db.t3.small"
-```
-
-## Monitoring & Operations
-
-### CloudWatch Dashboard
-
-Access the automatically created dashboard to monitor:
-- Application Load Balancer metrics
-- ECS service performance
-- RDS database metrics
-- Application logs
-
-### Log Analysis
-
-Use CloudWatch Log Insights with pre-configured queries:
-- Error logs detection
-- Slow request analysis
-- Request volume tracking
-
-### Alerting
-
-Configure email notifications for:
-- High CPU/memory utilization
-- Database connection issues
-- Load balancer health problems
-- Application errors
-
-## Troubleshooting
-
-### Common Issues
-
-1. **SSL Certificate Validation Fails**
-   ```bash
-   # Check certificate status
-   aws acm describe-certificate --certificate-arn <arn>
-   
-   # Verify DNS delegation
-   dig NS your-domain.com
-   ```
-
-2. **ECS Tasks Not Starting**
-   ```bash
-   # Check ECS service events
-   aws ecs describe-services --cluster <cluster> --services <service>
-   
-   # View container logs
-   aws logs get-log-events --log-group-name /ecs/ctfd-prod
-   ```
-
-3. **Database Connection Issues**
-   ```bash
-   # Test database connectivity
-   aws rds describe-db-instances --db-instance-identifier <id>
-   
-   # Check security groups
-   aws ec2 describe-security-groups --group-ids <sg-id>
-   ```
-
-### Health Checks
-
-- **Application**: `https://your-domain.com/healthcheck`
-- **Load Balancer**: Check target group health in AWS Console
-- **Database**: Monitor RDS metrics in CloudWatch
+- **Development Mode**: Single AZ, smaller instances, shorter retention
+- **Production Mode**: Multi-AZ, larger instances, longer retention
+- **Auto Scaling**: Scale based on demand
+- **Spot Instances**: Optional for non-critical workloads
+- **Reserved Instances**: Support for RDS reserved instances
 
 ## Contributing
 
-This module follows standard Terraform conventions:
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
 
-1. **Variables**: Defined in `variables.tf` with descriptions and types
-2. **Outputs**: Exposed in `outputs.tf` with descriptions
-3. **Documentation**: README files in each module
-4. **Examples**: Provided in usage documentation
+### Development Setup
 
-## Security Best Practices
+#### Prerequisites
+- Terraform >= 1.0
+- AWS CLI configured
+- Pre-commit hooks (optional but recommended)
 
-- **Regular Updates**: Keep container images and dependencies updated
-- **Access Control**: Use IAM roles instead of access keys
-- **Network Security**: Leverage security groups and private subnets
-- **Monitoring**: Enable CloudTrail and GuardDuty for additional security
-- **Secrets**: Never commit secrets to version control
+#### Local Development
+1. **Install pre-commit hooks** (recommended):
+   ```bash
+   pip install pre-commit
+   pre-commit install
+   ```
+
+2. **Run validation locally**:
+   ```bash
+   terraform init
+   terraform validate
+   terraform fmt -check -recursive
+   ```
+
+3. **Run security scans locally**:
+   ```bash
+   # Install TFLint
+   curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+   
+   # Run TFLint
+   tflint
+   
+   # Install Checkov
+   pip install checkov
+   
+   # Run Checkov
+   checkov -d .
+   ```
+
+### GitHub Actions
+
+This repository includes comprehensive GitHub Actions workflows for:
+
+- **Validation**: Automatic Terraform validation and formatting checks
+- **Testing**: Module validation and syntax testing
+- **Security**: Automated security scanning and compliance checks
+- **Documentation**: Auto-generation of documentation
+- **Cleanup**: Automatic cleanup of test artifacts
+
+See [`.github/workflows/README.md`](.github/workflows/README.md) for detailed workflow documentation.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
-- **Issues**: Report bugs and feature requests via GitHub Issues
-- **Documentation**: Check module README files for detailed configuration
-- **AWS Support**: Use AWS Support for infrastructure-related issues
+For issues and questions:
+
+1. Check the [examples](examples/) directory
+2. Review the [documentation](docs/)
+3. Open an issue on GitHub
+4. Contact the maintainers
+
+## Changelog
+
+### v1.0.0
+- Initial release
+- Complete ECS Fargate deployment
+- All core infrastructure components
+- Monitoring and security features

@@ -154,10 +154,10 @@ resource "aws_db_instance" "main" {
   option_group_name    = var.create_db_option_group ? aws_db_option_group.main[0].name : null
 
   # Backup
-  backup_retention_period = var.backup_retention_period
-  backup_window          = var.backup_window
-  copy_tags_to_snapshot  = true
-  skip_final_snapshot    = var.skip_final_snapshot
+  backup_retention_period   = var.backup_retention_period
+  backup_window             = var.backup_window
+  copy_tags_to_snapshot     = true
+  skip_final_snapshot       = var.skip_final_snapshot
   final_snapshot_identifier = var.skip_final_snapshot ? null : "${var.project_name}-${var.environment}-db-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
 
   # Maintenance
@@ -177,7 +177,7 @@ resource "aws_db_instance" "main" {
   performance_insights_retention_period = var.enable_performance_insights ? var.performance_insights_retention_period : null
 
   # Logging
-  enabled_cloudwatch_logs_exports = ["error", "general", "slow_query"]
+  enabled_cloudwatch_logs_exports = ["error", "general", "slowquery"]
 
   tags = merge(var.tags, {
     Name = "${var.project_name}-${var.environment}-db"

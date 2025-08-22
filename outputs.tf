@@ -56,6 +56,29 @@ output "database_secret_arn" {
   value       = module.database.secrets_manager_secret_arn
 }
 
+# ElastiCache Redis Information
+output "redis_endpoint" {
+  description = "ElastiCache Redis primary endpoint"
+  value       = var.enable_elasticache_redis ? module.elasticache[0].redis_endpoint : null
+  sensitive   = true
+}
+
+output "redis_port" {
+  description = "ElastiCache Redis port"
+  value       = var.enable_elasticache_redis ? module.elasticache[0].redis_port : null
+}
+
+output "redis_url" {
+  description = "ElastiCache Redis connection URL"
+  value       = var.enable_elasticache_redis ? module.elasticache[0].redis_url : null
+  sensitive   = true
+}
+
+output "redis_security_group_id" {
+  description = "ElastiCache Redis security group ID"
+  value       = var.enable_elasticache_redis ? module.elasticache[0].redis_security_group_id : null
+}
+
 # ECS Information
 output "ecs_cluster_name" {
   description = "Name of the ECS cluster"
@@ -113,9 +136,9 @@ output "private_subnet_ids" {
 output "security_groups" {
   description = "Security group information"
   value = {
-    alb_security_group_id       = module.security.alb_security_group_id
-    ecs_security_group_id       = module.security.ecs_tasks_security_group_id
-    database_security_group_id  = module.security.database_security_group_id
+    alb_security_group_id      = module.security.alb_security_group_id
+    ecs_security_group_id      = module.security.ecs_tasks_security_group_id
+    database_security_group_id = module.security.database_security_group_id
   }
 }
 
@@ -155,7 +178,7 @@ output "container_image" {
 # Quick Setup Information
 output "setup_instructions" {
   description = "Quick setup instructions"
-  value = <<EOF
+  value       = <<EOF
 CTFd Infrastructure Deployment Complete!
 
 1. Application Access:
@@ -180,6 +203,10 @@ CTFd Infrastructure Deployment Complete!
 
 6. File Storage:
    - S3 Bucket: ${module.storage.s3_bucket_name != null ? module.storage.s3_bucket_name : "Not created"}
+
+7. Redis Cache:
+   - Redis Endpoint: ${var.enable_elasticache_redis ? module.elasticache[0].redis_endpoint : "Not enabled"}
+   - Redis Port: ${var.enable_elasticache_redis ? module.elasticache[0].redis_port : "Not enabled"}
 
 For troubleshooting, check the ECS service logs in CloudWatch.
 EOF

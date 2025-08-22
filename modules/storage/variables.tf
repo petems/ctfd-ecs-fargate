@@ -112,7 +112,12 @@ variable "cloudfront_price_class" {
 variable "cors_allowed_origins" {
   description = "CORS allowed origins for S3 bucket"
   type        = list(string)
-  default     = ["*"]
+  default     = []
+
+  validation {
+    condition     = var.environment != "prod" || !contains(var.cors_allowed_origins, "*")
+    error_message = "Wildcard CORS origins are not allowed in production environments."
+  }
 }
 
 variable "cors_allowed_methods" {

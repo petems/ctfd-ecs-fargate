@@ -62,3 +62,28 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+# BYO (Bring Your Own) Resource Support Variables
+variable "existing_vpc_id" {
+  description = "ID of existing VPC to use (if provided, skips VPC creation)"
+  type        = string
+  default     = ""
+}
+
+variable "existing_public_subnet_ids" {
+  description = "IDs of existing public subnets"
+  type        = list(string)
+  default     = []
+}
+
+variable "existing_private_subnet_ids" {
+  description = "IDs of existing private subnets"
+  type        = list(string)
+  default     = []
+}
+
+variable "existing_database_subnet_ids" {
+  description = "IDs of existing database subnets"
+  type        = list(string)
+  default     = []
+}

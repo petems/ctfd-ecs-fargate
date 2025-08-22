@@ -93,7 +93,7 @@ resource "aws_ecs_task_definition" "ctfd" {
           name  = "AWS_DEFAULT_REGION"
           value = var.aws_region
         }
-      ], var.enable_s3_uploads && var.s3_bucket_name != "" ? [
+        ], var.enable_s3_uploads && var.s3_bucket_name != "" ? [
         {
           name  = "UPLOAD_PROVIDER"
           value = "s3"
@@ -106,12 +106,12 @@ resource "aws_ecs_task_definition" "ctfd" {
           name  = "AWS_S3_REGION"
           value = var.aws_region
         }
-      ] : [], var.enable_redis && var.redis_url != "" ? [
+        ] : [], var.enable_redis && var.redis_url != "" ? [
         {
           name  = "REDIS_URL"
           value = var.redis_url
         }
-      ] : [], var.ctfd_mail_server != "" ? [
+        ] : [], var.ctfd_mail_server != "" ? [
         {
           name  = "MAIL_SERVER"
           value = var.ctfd_mail_server
@@ -183,10 +183,8 @@ resource "aws_ecs_service" "ctfd" {
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
 
-  deployment_configuration {
-    maximum_percent         = var.deployment_maximum_percent
-    minimum_healthy_percent = var.deployment_minimum_healthy_percent
-  }
+  deployment_maximum_percent         = var.deployment_maximum_percent
+  deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
 
   network_configuration {
     security_groups  = var.ecs_security_group_ids

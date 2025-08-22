@@ -81,8 +81,8 @@ output "ctfd_secret_key_secret_arn" {
 output "cloudwatch_metric_alarm_ids" {
   description = "CloudWatch metric alarm IDs"
   value = {
-    cpu_high      = aws_cloudwatch_metric_alarm.ecs_service_cpu_high.id
-    memory_high   = aws_cloudwatch_metric_alarm.ecs_service_memory_high.id
-    task_count    = aws_cloudwatch_metric_alarm.ecs_service_task_count.id
+    cpu_high    = aws_cloudwatch_metric_alarm.ecs_service_cpu_high.id
+    memory_high = aws_cloudwatch_metric_alarm.ecs_service_memory_high.id
+    task_count  = aws_cloudwatch_metric_alarm.ecs_service_task_count.id
   }
 }

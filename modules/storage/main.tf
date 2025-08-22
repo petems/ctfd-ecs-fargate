@@ -13,7 +13,7 @@ resource "aws_s3_bucket" "ctfd_uploads" {
   force_destroy = var.s3_force_destroy
 
   tags = merge(var.tags, {
-    Name = "${var.project_name}-${var.environment}-uploads"
+    Name    = "${var.project_name}-${var.environment}-uploads"
     Purpose = "CTFd file uploads and static assets"
   })
 }
@@ -73,6 +73,10 @@ resource "aws_s3_bucket_lifecycle_configuration" "ctfd_uploads" {
   rule {
     id     = "lifecycle_rule"
     status = "Enabled"
+
+    filter {
+      prefix = ""
+    }
 
     # Transition to IA
     transition {

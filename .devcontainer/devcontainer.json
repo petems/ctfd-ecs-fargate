@@ -6,6 +6,7 @@
       "ghcr.io/devcontainers/features/terraform:1": {
         "version": "latest"
       },
+      "ghcr.io/devcontainers/features/terraform-docs:1": {},
       "ghcr.io/devcontainers/features/docker-in-docker:2": {},
       "ghcr.io/devcontainers/features/git:1": {},
       "ghcr.io/devcontainers/features/github-cli:1": {},
@@ -37,7 +38,7 @@
       }
     },
   
-    "postCreateCommand": "terraform --version && docker --version && echo 'Dev container ready!'",
+    "postCreateCommand": "terraform --version && terraform-docs --version && docker --version && echo 'Dev container ready!'",
     
     "remoteUser": "vscode"
   }
