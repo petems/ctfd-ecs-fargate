@@ -78,8 +78,8 @@ output "enhanced_monitoring_iam_role_arn" {
 output "cloudwatch_metric_alarm_ids" {
   description = "CloudWatch metric alarm IDs"
   value = {
-    cpu_utilization  = aws_cloudwatch_metric_alarm.database_cpu.id
-    connection_count = aws_cloudwatch_metric_alarm.database_connections.id
-    free_storage     = aws_cloudwatch_metric_alarm.database_free_storage.id
+    cpu_utilization  = length(aws_cloudwatch_metric_alarm.database_cpu) > 0 ? aws_cloudwatch_metric_alarm.database_cpu[0].id : null
+    connection_count = length(aws_cloudwatch_metric_alarm.database_connections) > 0 ? aws_cloudwatch_metric_alarm.database_connections[0].id : null
+    free_storage     = length(aws_cloudwatch_metric_alarm.database_free_storage) > 0 ? aws_cloudwatch_metric_alarm.database_free_storage[0].id : null
   }
 }

@@ -145,12 +145,12 @@ output "security_groups" {
 # Monitoring Information
 output "cloudwatch_dashboard_url" {
   description = "URL to the CloudWatch dashboard"
-  value       = module.monitoring.dashboard_url
+  value       = var.disable_monitoring_module ? null : module.monitoring[0].dashboard_url
 }
 
 output "sns_topic_arn" {
   description = "ARN of the SNS topic for alerts"
-  value       = module.monitoring.sns_topic_arn
+  value       = var.disable_monitoring_module ? null : module.monitoring[0].sns_topic_arn
 }
 
 output "cloudwatch_log_group" {
@@ -190,7 +190,7 @@ CTFd Infrastructure Deployment Complete!
    ${join("\n   ", module.load_balancer.route53_zone_name_servers != null ? module.load_balancer.route53_zone_name_servers : ["N/A - Route53 zone not created"])}
 
 3. Monitoring:
-   - CloudWatch Dashboard: ${module.monitoring.dashboard_url != null ? module.monitoring.dashboard_url : "Not created"}
+   - CloudWatch Dashboard: ${var.disable_monitoring_module ? "Not created" : module.monitoring[0].dashboard_url}
    - Log Group: ${module.ecs.cloudwatch_log_group_name}
 
 4. Container Management:

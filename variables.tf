@@ -3,6 +3,11 @@ variable "aws_region" {
   type        = string
   default     = "us-west-2"
 }
+variable "cors_allowed_origins" {
+  description = "CORS allowed origins for S3 uploads bucket"
+  type        = list(string)
+  default     = []
+}
 
 variable "environment" {
   description = "Environment name"
@@ -222,7 +227,7 @@ variable "enable_monitoring" {
 }
 
 variable "disable_monitoring_module" {
-  description = "Disable entire monitoring module (skips creation of dashboards, alarms, and related resources)"
+  description = "Disable entire monitoring module (skips dashboards/alarms)"
   type        = bool
   default     = false
 }

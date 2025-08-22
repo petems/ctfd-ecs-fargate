@@ -46,6 +46,7 @@ module "storage" {
   aws_region            = var.aws_region
   create_ecr_repository = var.create_ecr_repository
   s3_force_destroy      = var.environment == "dev" ? true : false # Allow destruction in dev
+  cors_allowed_origins  = var.cors_allowed_origins
   s3_bucket_name        = "${var.project_name}-${var.environment}-uploads-ddtsre"
 
   tags = local.common_tags
