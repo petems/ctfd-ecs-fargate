@@ -320,10 +320,12 @@ No resources.
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_allowed_ip_ranges"></a> [allowed\_ip\_ranges](#input\_allowed\_ip\_ranges) | CIDR blocks allowed to access the ALB (replaces 0.0.0.0/0) | `list(string)` | <pre>[<br/>  "0.0.0.0/0"<br/>]</pre> | no |
 | <a name="input_availability_zones"></a> [availability\_zones](#input\_availability\_zones) | Availability zones | `list(string)` | <pre>[<br/>  "us-west-2a",<br/>  "us-west-2b",<br/>  "us-west-2c"<br/>]</pre> | no |
 | <a name="input_aws_region"></a> [aws\_region](#input\_aws\_region) | AWS region | `string` | `"us-west-2"` | no |
 | <a name="input_backup_retention_period"></a> [backup\_retention\_period](#input\_backup\_retention\_period) | RDS backup retention period in days | `number` | `7` | no |
 | <a name="input_billing_alert_threshold"></a> [billing\_alert\_threshold](#input\_billing\_alert\_threshold) | Billing alert threshold in USD | `number` | `100` | no |
+| <a name="input_cors_allowed_origins"></a> [cors\_allowed\_origins](#input\_cors\_allowed\_origins) | CORS allowed origins for S3 uploads bucket | `list(string)` | `[]` | no |
 | <a name="input_create_ecr_repository"></a> [create\_ecr\_repository](#input\_create\_ecr\_repository) | Create ECR repository for custom CTFd images | `bool` | `true` | no |
 | <a name="input_create_route53_zone"></a> [create\_route53\_zone](#input\_create\_route53\_zone) | Create new Route53 hosted zone | `bool` | `true` | no |
 | <a name="input_ctfd_container_image"></a> [ctfd\_container\_image](#input\_ctfd\_container\_image) | CTFd container image | `string` | `"ctfd/ctfd:latest"` | no |
@@ -332,15 +334,19 @@ No resources.
 | <a name="input_db_instance_class"></a> [db\_instance\_class](#input\_db\_instance\_class) | RDS instance class | `string` | `"db.t3.micro"` | no |
 | <a name="input_db_name"></a> [db\_name](#input\_db\_name) | Database name | `string` | `"ctfd"` | no |
 | <a name="input_db_username"></a> [db\_username](#input\_db\_username) | Database username | `string` | `"ctfduser"` | no |
+| <a name="input_disable_monitoring_module"></a> [disable\_monitoring\_module](#input\_disable\_monitoring\_module) | Disable entire monitoring module (skips dashboards/alarms) | `bool` | `false` | no |
 | <a name="input_domain_name"></a> [domain\_name](#input\_domain\_name) | Domain name for the CTFd application | `string` | n/a | yes |
 | <a name="input_ecs_cpu"></a> [ecs\_cpu](#input\_ecs\_cpu) | CPU units for ECS task | `number` | `256` | no |
 | <a name="input_ecs_desired_count"></a> [ecs\_desired\_count](#input\_ecs\_desired\_count) | Desired number of ECS tasks | `number` | `1` | no |
 | <a name="input_ecs_max_capacity"></a> [ecs\_max\_capacity](#input\_ecs\_max\_capacity) | Maximum number of ECS tasks | `number` | `10` | no |
 | <a name="input_ecs_memory"></a> [ecs\_memory](#input\_ecs\_memory) | Memory for ECS task | `number` | `512` | no |
 | <a name="input_ecs_min_capacity"></a> [ecs\_min\_capacity](#input\_ecs\_min\_capacity) | Minimum number of ECS tasks | `number` | `1` | no |
+| <a name="input_enable_backups"></a> [enable\_backups](#input\_enable\_backups) | Enable automated RDS backups | `bool` | `true` | no |
 | <a name="input_enable_billing_alerts"></a> [enable\_billing\_alerts](#input\_enable\_billing\_alerts) | Enable billing alerts | `bool` | `false` | no |
+| <a name="input_enable_database_alarms"></a> [enable\_database\_alarms](#input\_enable\_database\_alarms) | Enable CloudWatch alarms for RDS | `bool` | `true` | no |
 | <a name="input_enable_deletion_protection"></a> [enable\_deletion\_protection](#input\_enable\_deletion\_protection) | Enable deletion protection for RDS | `bool` | `true` | no |
 | <a name="input_enable_elasticache_redis"></a> [enable\_elasticache\_redis](#input\_enable\_elasticache\_redis) | Enable ElastiCache Redis cluster | `bool` | `true` | no |
+| <a name="input_enable_interface_endpoints"></a> [enable\_interface\_endpoints](#input\_enable\_interface\_endpoints) | Create interface VPC endpoints for private access to AWS services | `bool` | `false` | no |
 | <a name="input_enable_monitoring"></a> [enable\_monitoring](#input\_enable\_monitoring) | Enable enhanced monitoring | `bool` | `true` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name | `string` | `"dev"` | no |
 | <a name="input_existing_database_subnet_ids"></a> [existing\_database\_subnet\_ids](#input\_existing\_database\_subnet\_ids) | IDs of existing database subnets | `list(string)` | `[]` | no |
@@ -348,6 +354,7 @@ No resources.
 | <a name="input_existing_public_subnet_ids"></a> [existing\_public\_subnet\_ids](#input\_existing\_public\_subnet\_ids) | IDs of existing public subnets | `list(string)` | `[]` | no |
 | <a name="input_existing_route53_zone_id"></a> [existing\_route53\_zone\_id](#input\_existing\_route53\_zone\_id) | ID of existing Route53 zone (required if create\_route53\_zone = false) | `string` | `""` | no |
 | <a name="input_existing_vpc_id"></a> [existing\_vpc\_id](#input\_existing\_vpc\_id) | ID of existing VPC to use (if provided, skips VPC creation) | `string` | `""` | no |
+| <a name="input_interface_endpoint_services"></a> [interface\_endpoint\_services](#input\_interface\_endpoint\_services) | List of AWS interface endpoint services to create (service suffixes) | `list(string)` | <pre>[<br/>  "secretsmanager",<br/>  "kms",<br/>  "ecr.api",<br/>  "ecr.dkr",<br/>  "logs",<br/>  "sts"<br/>]</pre> | no |
 | <a name="input_log_retention_days"></a> [log\_retention\_days](#input\_log\_retention\_days) | CloudWatch log retention in days | `number` | `7` | no |
 | <a name="input_notification_email_addresses"></a> [notification\_email\_addresses](#input\_notification\_email\_addresses) | List of email addresses for CloudWatch alarms | `list(string)` | `[]` | no |
 | <a name="input_owner"></a> [owner](#input\_owner) | Owner/Team responsible for the infrastructure | `string` | `"devops"` | no |
