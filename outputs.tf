@@ -145,12 +145,12 @@ output "security_groups" {
 # Monitoring Information
 output "cloudwatch_dashboard_url" {
   description = "URL to the CloudWatch dashboard"
-  value       = var.disable_monitoring_module ? null : module.monitoring[0].dashboard_url
+  value       = var.disable_monitoring_module ? null : try(module.monitoring[0].dashboard_url, null)
 }
 
 output "sns_topic_arn" {
   description = "ARN of the SNS topic for alerts"
-  value       = var.disable_monitoring_module ? null : module.monitoring[0].sns_topic_arn
+  value       = var.disable_monitoring_module ? null : try(module.monitoring[0].sns_topic_arn, null)
 }
 
 output "cloudwatch_log_group" {
@@ -190,11 +190,11 @@ CTFd Infrastructure Deployment Complete!
    ${join("\n   ", module.load_balancer.route53_zone_name_servers != null ? module.load_balancer.route53_zone_name_servers : ["N/A - Route53 zone not created"])}
 
 3. Monitoring:
-   - CloudWatch Dashboard: ${var.disable_monitoring_module ? "Not created" : module.monitoring[0].dashboard_url}
+   - CloudWatch Dashboard: ${var.disable_monitoring_module ? "Not created" : coalesce(module.monitoring[0].dashboard_url, "Not created")}
    - Log Group: ${module.ecs.cloudwatch_log_group_name}
 
 4. Container Management:
-   - ECR Repository: ${module.storage.ecr_repository_url != null ? module.storage.ecr_repository_url : "Not created"}
+   - ECR Repository: ${coalesce(module.storage.ecr_repository_url, "Not created")}
    - ECS Cluster: ${module.ecs.ecs_cluster_name}
    - ECS Service: ${module.ecs.ecs_service_name}
 
@@ -202,7 +202,7 @@ CTFd Infrastructure Deployment Complete!
    - Credentials stored in AWS Secrets Manager: ${module.database.secrets_manager_secret_name}
 
 6. File Storage:
-   - S3 Bucket: ${module.storage.s3_bucket_name != null ? module.storage.s3_bucket_name : "Not created"}
+   - S3 Bucket: ${coalesce(module.storage.s3_bucket_name, "Not created")}
 
 7. Redis Cache:
    - Redis Endpoint: ${var.enable_elasticache_redis ? module.elasticache[0].redis_endpoint : "Not enabled"}

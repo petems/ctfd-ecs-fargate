@@ -87,3 +87,29 @@ variable "existing_database_subnet_ids" {
   type        = list(string)
   default     = []
 }
+
+# Interface VPC Endpoints
+variable "enable_interface_endpoints" {
+  description = "Create interface VPC endpoints for private access to AWS services"
+  type        = bool
+  default     = false
+}
+
+variable "interface_endpoint_services" {
+  description = "List of AWS interface endpoint services to create (service suffixes)"
+  type        = list(string)
+  default     = [
+    "secretsmanager",
+    "kms",
+    "ecr.api",
+    "ecr.dkr",
+    "logs",
+    "sts",
+  ]
+}
+
+variable "enable_gateway_endpoints" {
+  description = "Create Gateway VPC endpoints (e.g., S3) across VPC route tables"
+  type        = bool
+  default     = true
+}

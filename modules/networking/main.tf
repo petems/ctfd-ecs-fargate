@@ -20,7 +20,10 @@ data "aws_vpc" "existing" {
 locals {
   vpc_id         = var.existing_vpc_id != "" ? data.aws_vpc.existing[0].id : aws_vpc.main[0].id
   vpc_cidr_block = var.existing_vpc_id != "" ? data.aws_vpc.existing[0].cidr_block : aws_vpc.main[0].cidr_block
+  private_subnet_ids = length(var.existing_private_subnet_ids) > 0 ? var.existing_private_subnet_ids : aws_subnet.private[*].id
 }
+
+data "aws_region" "current" {}
 
 # Internet Gateway - Conditional creation based on existing VPC
 resource "aws_internet_gateway" "main" {
@@ -234,5 +237,67 @@ resource "aws_iam_role_policy" "flow_log" {
         Resource = aws_cloudwatch_log_group.vpc_flow_log.arn
       }
     ]
+  })
+}
+
+# Collect route table IDs for gateway endpoint association
+locals {
+  route_table_ids_for_gateway = concat(
+    length(var.existing_public_subnet_ids)   == 0 ? [aws_route_table.public[0].id] : [],
+    length(var.existing_private_subnet_ids)  == 0 ? aws_route_table.private[*].id : [],
+    length(var.existing_database_subnet_ids) == 0 ? [aws_route_table.database[0].id] : []
+  )
+}
+
+# Gateway VPC endpoint for S3 (required by ecr.dkr pull path)
+resource "aws_vpc_endpoint" "s3_gateway" {
+  count               = var.enable_gateway_endpoints ? 1 : 0
+  vpc_id              = local.vpc_id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.s3"
+  vpc_endpoint_type   = "Gateway"
+  route_table_ids     = var.enable_gateway_endpoints ? (length(local.route_table_ids_for_gateway) > 0 ? local.route_table_ids_for_gateway : []) : []
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-vpce-s3-gateway"
+  })
+}
+
+# Security group for Interface VPC Endpoints
+resource "aws_security_group" "vpce" {
+  count       = var.enable_interface_endpoints ? 1 : 0
+  name        = "${var.project_name}-${var.environment}-vpce"
+  description = "Security group for VPC Interface Endpoints"
+  vpc_id      = local.vpc_id
+
+  ingress {
+    description = "HTTPS from VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [local.vpc_cidr_block]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = merge(var.tags, { Name = "${var.project_name}-${var.environment}-vpce" })
+}
+
+# Interface VPC Endpoints for AWS services (e.g., secretsmanager, kms, ecr.api, ecr.dkr, logs, sts)
+resource "aws_vpc_endpoint" "interface" {
+  for_each            = var.enable_interface_endpoints ? toset(var.interface_endpoint_services) : []
+  vpc_id              = local.vpc_id
+  service_name        = "com.amazonaws.${data.aws_region.current.name}.${each.value}"
+  vpc_endpoint_type   = "Interface"
+  subnet_ids          = local.private_subnet_ids
+  security_group_ids  = [aws_security_group.vpce[0].id]
+  private_dns_enabled = true
+
+  tags = merge(var.tags, {
+    Name = "${var.project_name}-${var.environment}-vpce-${each.value}"
   })
 }

@@ -63,6 +63,7 @@ resource "aws_ecs_task_definition" "ctfd" {
   memory                   = var.container_memory
   execution_role_arn       = var.ecs_task_execution_role_arn
   task_role_arn            = var.ecs_task_role_arn
+  depends_on               = [aws_cloudwatch_log_group.ecs_logs]
 
   container_definitions = jsonencode([
     {
@@ -182,6 +183,7 @@ resource "aws_ecs_service" "ctfd" {
   task_definition = aws_ecs_task_definition.ctfd.arn
   desired_count   = var.desired_count
   launch_type     = "FARGATE"
+  force_new_deployment = true
 
   deployment_maximum_percent         = var.deployment_maximum_percent
   deployment_minimum_healthy_percent = var.deployment_minimum_healthy_percent
@@ -203,7 +205,8 @@ resource "aws_ecs_service" "ctfd" {
   enable_execute_command = var.enable_execute_command
 
   depends_on = [
-    aws_ecs_task_definition.ctfd
+    aws_ecs_task_definition.ctfd,
+    aws_cloudwatch_log_group.ecs_logs
   ]
 
   tags = merge(var.tags, {

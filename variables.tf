@@ -15,6 +15,12 @@ variable "environment" {
   default     = "dev"
 }
 
+variable "allowed_ip_ranges" {
+  description = "CIDR blocks allowed to access the ALB (replaces 0.0.0.0/0)"
+  type        = list(string)
+  default     = ["0.0.0.0/0"]
+}
+
 variable "owner" {
   description = "Owner/Team responsible for the infrastructure"
   type        = string
@@ -290,6 +296,25 @@ variable "enable_database_alarms" {
   description = "Enable CloudWatch alarms for RDS"
   type        = bool
   default     = true
+}
+
+variable "enable_interface_endpoints" {
+  description = "Create interface VPC endpoints for private access to AWS services"
+  type        = bool
+  default     = false
+}
+
+variable "interface_endpoint_services" {
+  description = "List of AWS interface endpoint services to create (service suffixes)"
+  type        = list(string)
+  default     = [
+    "secretsmanager",
+    "kms",
+    "ecr.api",
+    "ecr.dkr",
+    "logs",
+    "sts",
+  ]
 }
 
 # BYO (Bring Your Own) Resource Support Variables

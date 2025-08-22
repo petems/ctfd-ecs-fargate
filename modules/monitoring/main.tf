@@ -1,6 +1,6 @@
 # SNS Topic for Alerts
 resource "aws_sns_topic" "alerts" {
-  count = var.create_sns_topic ? 1 : 0
+  count = (var.create_sns_topic && var.create_dashboard) ? 1 : 0
   name  = var.sns_topic_name != "" ? var.sns_topic_name : "${var.project_name}-${var.environment}-alerts"
 
   tags = merge(var.tags, {
@@ -10,7 +10,7 @@ resource "aws_sns_topic" "alerts" {
 
 # SNS Topic Policy
 resource "aws_sns_topic_policy" "alerts" {
-  count = var.create_sns_topic ? 1 : 0
+  count = (var.create_sns_topic && var.create_dashboard) ? 1 : 0
   arn   = aws_sns_topic.alerts[0].arn
 
   policy = jsonencode({
@@ -35,7 +35,7 @@ resource "aws_sns_topic_policy" "alerts" {
 
 # Email Subscriptions
 resource "aws_sns_topic_subscription" "email" {
-  count     = var.create_sns_topic ? length(var.notification_endpoints) : 0
+  count     = (var.create_sns_topic && var.create_dashboard) ? length(var.notification_endpoints) : 0
   topic_arn = aws_sns_topic.alerts[0].arn
   protocol  = "email"
   endpoint  = var.notification_endpoints[count.index]
@@ -43,7 +43,7 @@ resource "aws_sns_topic_subscription" "email" {
 
 # Additional SNS Subscriptions (for external integrations)
 resource "aws_sns_topic_subscription" "external" {
-  count     = var.create_sns_topic ? length(var.external_notification_endpoints) : 0
+  count     = (var.create_sns_topic && var.create_dashboard) ? length(var.external_notification_endpoints) : 0
   topic_arn = aws_sns_topic.alerts[0].arn
   protocol  = var.external_notification_endpoints[count.index].protocol
   endpoint  = var.external_notification_endpoints[count.index].endpoint

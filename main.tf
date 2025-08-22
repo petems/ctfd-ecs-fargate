@@ -20,6 +20,11 @@ module "networking" {
   existing_private_subnet_ids  = var.existing_private_subnet_ids
   existing_database_subnet_ids = var.existing_database_subnet_ids
 
+  # Interface VPC Endpoints
+  enable_interface_endpoints  = var.enable_interface_endpoints
+  interface_endpoint_services = var.interface_endpoint_services
+  enable_gateway_endpoints    = true
+
   tags = local.common_tags
 }
 
@@ -33,6 +38,7 @@ module "security" {
   vpc_cidr_block = module.networking.vpc_cidr_block
   app_port       = var.ctfd_container_port
   s3_bucket_arn  = "arn:aws:s3:::${var.project_name}-${var.environment}-uploads-ddtsre"
+  allowed_cidr_blocks = var.allowed_ip_ranges
 
   tags = local.common_tags
 }

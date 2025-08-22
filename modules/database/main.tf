@@ -49,6 +49,7 @@ resource "aws_db_parameter_group" "main" {
   parameter {
     name  = "innodb_buffer_pool_size"
     value = "{DBInstanceClassMemory*3/4}"
+    apply_method = "pending-reboot"
   }
 
   parameter {
@@ -74,6 +75,7 @@ resource "aws_db_parameter_group" "main" {
   parameter {
     name  = "innodb_log_file_size"
     value = "134217728"
+    apply_method = "pending-reboot"
   }
 
   tags = merge(var.tags, {
