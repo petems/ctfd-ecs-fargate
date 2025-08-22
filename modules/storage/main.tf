@@ -104,7 +104,7 @@ resource "aws_s3_bucket_lifecycle_configuration" "ctfd_uploads" {
 
 # S3 Bucket Policy for ECS tasks
 resource "aws_s3_bucket_policy" "ctfd_uploads" {
-  count  = var.create_s3_bucket ? 1 : 0
+  count  = var.create_s3_bucket && var.create_s3_bucket_policy ? 1 : 0
   bucket = aws_s3_bucket.ctfd_uploads[0].id
 
   policy = jsonencode({

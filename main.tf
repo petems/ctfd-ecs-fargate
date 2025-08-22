@@ -32,7 +32,7 @@ module "security" {
   vpc_id         = module.networking.vpc_id
   vpc_cidr_block = module.networking.vpc_cidr_block
   app_port       = var.ctfd_container_port
-  s3_bucket_arn  = module.storage.s3_bucket_arn
+  s3_bucket_arn  = "arn:aws:s3:::${var.project_name}-${var.environment}-uploads-ddtsre"
 
   tags = local.common_tags
 }
@@ -46,6 +46,7 @@ module "storage" {
   aws_region            = var.aws_region
   create_ecr_repository = var.create_ecr_repository
   s3_force_destroy      = var.environment == "dev" ? true : false # Allow destruction in dev
+  s3_bucket_name        = "${var.project_name}-${var.environment}-uploads-ddtsre"
 
   tags = local.common_tags
 }
@@ -70,8 +71,10 @@ module "database" {
   # Production settings
   multi_az                    = var.environment == "prod" ? true : false
   enable_deletion_protection  = var.enable_deletion_protection
+  enable_backups              = var.enable_backups
   backup_retention_period     = var.backup_retention_period
   enable_performance_insights = var.enable_monitoring
+  enable_alarms               = var.enable_database_alarms
 
   tags = local.common_tags
 
@@ -169,7 +172,7 @@ module "ecs" {
 
   # S3 integration
   enable_s3_uploads = true
-  s3_bucket_name    = module.storage.s3_bucket_name
+  s3_bucket_name    = "${var.project_name}-${var.environment}-uploads-ddtsre"
 
   # Redis integration
   enable_redis = var.enable_elasticache_redis
@@ -186,6 +189,7 @@ module "ecs" {
 # Monitoring Module
 module "monitoring" {
   source = "./modules/monitoring"
+  count  = var.disable_monitoring_module ? 0 : 1
 
   project_name = var.project_name
   environment  = var.environment

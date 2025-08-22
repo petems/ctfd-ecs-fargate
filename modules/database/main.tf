@@ -154,11 +154,11 @@ resource "aws_db_instance" "main" {
   option_group_name    = var.create_db_option_group ? aws_db_option_group.main[0].name : null
 
   # Backup
-  backup_retention_period   = var.backup_retention_period
+  backup_retention_period   = var.enable_backups ? var.backup_retention_period : 0
   backup_window             = var.backup_window
   copy_tags_to_snapshot     = true
-  skip_final_snapshot       = var.skip_final_snapshot
-  final_snapshot_identifier = var.skip_final_snapshot ? null : "${var.project_name}-${var.environment}-db-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}"
+  skip_final_snapshot       = var.enable_backups ? var.skip_final_snapshot : true
+  final_snapshot_identifier = var.enable_backups && !var.skip_final_snapshot ? "${var.project_name}-${var.environment}-db-final-snapshot-${formatdate("YYYY-MM-DD-hhmm", timestamp())}" : null
 
   # Maintenance
   maintenance_window         = var.maintenance_window
@@ -190,6 +190,7 @@ resource "aws_db_instance" "main" {
 
 # CloudWatch Alarms for RDS
 resource "aws_cloudwatch_metric_alarm" "database_cpu" {
+  count               = var.enable_alarms ? 1 : 0
   alarm_name          = "${var.project_name}-${var.environment}-db-cpu-utilization"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
@@ -209,6 +210,7 @@ resource "aws_cloudwatch_metric_alarm" "database_cpu" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "database_connections" {
+  count               = var.enable_alarms ? 1 : 0
   alarm_name          = "${var.project_name}-${var.environment}-db-connection-count"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = "2"
@@ -228,6 +230,7 @@ resource "aws_cloudwatch_metric_alarm" "database_connections" {
 }
 
 resource "aws_cloudwatch_metric_alarm" "database_free_storage" {
+  count               = var.enable_alarms ? 1 : 0
   alarm_name          = "${var.project_name}-${var.environment}-db-free-storage-space"
   comparison_operator = "LessThanThreshold"
   evaluation_periods  = "1"

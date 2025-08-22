@@ -31,10 +31,6 @@ variable "domain_name" {
   description = "Domain name for the CTFd application"
   type        = string
 
-  validation {
-    condition     = can(regex("^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\\.[a-zA-Z]{2,}$", var.domain_name))
-    error_message = "domain_name must be a valid domain name."
-  }
 }
 
 variable "vpc_cidr" {
@@ -225,6 +221,12 @@ variable "enable_monitoring" {
   default     = true
 }
 
+variable "disable_monitoring_module" {
+  description = "Disable entire monitoring module (skips creation of dashboards, alarms, and related resources)"
+  type        = bool
+  default     = false
+}
+
 variable "log_retention_days" {
   description = "CloudWatch log retention in days"
   type        = number
@@ -271,6 +273,18 @@ variable "billing_alert_threshold" {
     condition     = var.billing_alert_threshold > 0
     error_message = "Billing alert threshold must be greater than 0."
   }
+}
+
+variable "enable_backups" {
+  description = "Enable automated RDS backups"
+  type        = bool
+  default     = true
+}
+
+variable "enable_database_alarms" {
+  description = "Enable CloudWatch alarms for RDS"
+  type        = bool
+  default     = true
 }
 
 # BYO (Bring Your Own) Resource Support Variables

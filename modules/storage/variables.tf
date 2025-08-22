@@ -120,6 +120,12 @@ variable "cors_allowed_origins" {
   }
 }
 
+variable "create_s3_bucket_policy" {
+  description = "Create S3 bucket policy (disabled by default to avoid BlockPublicPolicy)"
+  type        = bool
+  default     = false
+}
+
 variable "cors_allowed_methods" {
   description = "CORS allowed methods for S3 bucket"
   type        = list(string)

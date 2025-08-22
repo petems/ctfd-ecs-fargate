@@ -50,7 +50,7 @@ output "nat_gateway_ids" {
 
 output "public_route_table_id" {
   description = "ID of the public route table"
-  value       = aws_route_table.public.id
+  value       = length(aws_route_table.public) > 0 ? aws_route_table.public[0].id : null
 }
 
 output "private_route_table_ids" {
@@ -60,7 +60,7 @@ output "private_route_table_ids" {
 
 output "database_route_table_id" {
   description = "ID of the database route table"
-  value       = aws_route_table.database.id
+  value       = length(aws_route_table.database) > 0 ? aws_route_table.database[0].id : null
 }
 
 output "availability_zones" {

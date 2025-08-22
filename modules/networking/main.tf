@@ -117,6 +117,7 @@ resource "aws_nat_gateway" "main" {
 
 # Route Table for Public Subnets
 resource "aws_route_table" "public" {
+  count  = length(var.existing_public_subnet_ids) == 0 ? 1 : 0
   vpc_id = local.vpc_id
 
   route {
@@ -131,7 +132,7 @@ resource "aws_route_table" "public" {
 
 # Route Table for Private Subnets
 resource "aws_route_table" "private" {
-  count  = var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.private_subnet_cidrs)) : 1
+  count  = length(var.existing_private_subnet_ids) == 0 ? (var.enable_nat_gateway ? (var.single_nat_gateway ? 1 : length(var.private_subnet_cidrs)) : 1) : 0
   vpc_id = local.vpc_id
 
   dynamic "route" {
@@ -149,6 +150,7 @@ resource "aws_route_table" "private" {
 
 # Route Table for Database Subnets
 resource "aws_route_table" "database" {
+  count  = length(var.existing_database_subnet_ids) == 0 ? 1 : 0
   vpc_id = local.vpc_id
 
   tags = merge(var.tags, {
@@ -160,7 +162,7 @@ resource "aws_route_table" "database" {
 resource "aws_route_table_association" "public" {
   count          = length(var.existing_public_subnet_ids) == 0 ? length(var.public_subnet_cidrs) : 0
   subnet_id      = aws_subnet.public[count.index].id
-  route_table_id = aws_route_table.public.id
+  route_table_id = aws_route_table.public[0].id
 }
 
 # Route Table Associations - Private
@@ -174,7 +176,7 @@ resource "aws_route_table_association" "private" {
 resource "aws_route_table_association" "database" {
   count          = length(var.existing_database_subnet_ids) == 0 ? length(var.database_subnet_cidrs) : 0
   subnet_id      = aws_subnet.database[count.index].id
-  route_table_id = aws_route_table.database.id
+  route_table_id = aws_route_table.database[0].id
 }
 
 # VPC Flow Logs

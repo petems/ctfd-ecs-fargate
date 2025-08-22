@@ -83,6 +83,12 @@ variable "backup_retention_period" {
   default     = 7
 }
 
+variable "enable_backups" {
+  description = "Enable automated RDS backups"
+  type        = bool
+  default     = true
+}
+
 variable "backup_window" {
   description = "Backup window"
   type        = string
@@ -93,6 +99,12 @@ variable "maintenance_window" {
   description = "Maintenance window"
   type        = string
   default     = "Sun:04:00-Sun:05:00"
+}
+
+variable "enable_alarms" {
+  description = "Enable CloudWatch alarms for the database"
+  type        = bool
+  default     = true
 }
 
 variable "enable_deletion_protection" {
