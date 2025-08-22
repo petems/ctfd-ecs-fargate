@@ -34,9 +34,6 @@ ctfd-ecs-fargate/
 │   ├── ecs/                  # Fargate cluster & services
 │   ├── load-balancer/        # ALB configuration
 │   └── monitoring/           # CloudWatch, alarms
-└── environments/
-    ├── dev.tfvars
-    └── prod.tfvars
 ```
 
 ## Implementation Plan
@@ -179,14 +176,14 @@ common_tags = {
 #### Option A: Remote State (Recommended for Production)
 1. Configure AWS CLI: `aws configure`
 2. Create Terraform state bucket manually (separate from application)
-3. Copy `terraform.tfvars.example` to `terraform.tfvars` and customize
+3. Create `terraform.tfvars` and customize for your deployment
 4. Use `backend.tf` for remote state configuration
 5. Initialize Terraform: `terraform init`
 
 #### Option B: Local State (Development/Testing Only)
 1. Configure AWS CLI: `aws configure`
 2. Copy `backend-local.tf.example` to `backend.tf` for local state
-3. Copy `terraform.tfvars.example` to `terraform.tfvars` and customize
+3. Create `terraform.tfvars` and customize for your deployment
 4. Initialize Terraform: `terraform init`
 
 **Note**: Local state should only be used for development or testing. Production deployments should always use remote state with S3 and DynamoDB for state locking.
@@ -194,13 +191,13 @@ common_tags = {
 ### Deployment Commands
 ```bash
 # Plan deployment
-terraform plan -var-file=environments/dev.tfvars
+terraform plan
 
 # Apply infrastructure
-terraform apply -var-file=environments/dev.tfvars
+terraform apply
 
 # Destroy infrastructure (when needed)
-terraform destroy -var-file=environments/dev.tfvars
+terraform destroy
 ```
 
 ### Validation Steps

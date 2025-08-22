@@ -1,0 +1,35 @@
+# Local backend configuration for development/testing
+# To use this configuration:
+# 1. Copy this file to backend.tf: cp backend-local.tf.example backend.tf
+# 2. Run: terraform init
+#
+# WARNING: Local state should only be used for development/testing.
+# Production deployments should use remote state with S3 and DynamoDB.
+
+terraform {
+  # Local backend - state stored in terraform.tfstate file
+  # No backend configuration means local backend by default
+  
+  required_version = ">= 1.0"
+
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+    }
+  }
+}
+
+# Configure the AWS Provider
+provider "aws" {
+  region = var.aws_region
+
+  default_tags {
+    tags = {
+      Project     = "ctfd-infrastructure"
+      Environment = var.environment
+      ManagedBy   = "terraform"
+      Owner       = var.owner
+    }
+  }
+}

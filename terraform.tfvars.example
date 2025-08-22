@@ -1,0 +1,41 @@
+# AWS Configuration
+aws_region = "us-west-2"
+environment = "dev"
+owner = "your-team"
+project_name = "ctfd"
+
+# Domain Configuration
+domain_name = "ctf.example.com"
+
+# Network Configuration
+vpc_cidr = "10.0.0.0/16"
+availability_zones = ["us-west-2a", "us-west-2b", "us-west-2c"]
+
+public_subnet_cidrs = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
+private_subnet_cidrs = ["10.0.11.0/24", "10.0.12.0/24", "10.0.13.0/24"]
+database_subnet_cidrs = ["10.0.21.0/24", "10.0.22.0/24", "10.0.23.0/24"]
+
+# Database Configuration
+db_instance_class = "db.t3.micro"
+db_name = "ctfd"
+db_username = "ctfduser"
+
+# ECS Configuration
+ecs_cpu = 256
+ecs_memory = 512
+ecs_desired_count = 1
+ecs_max_capacity = 10
+ecs_min_capacity = 1
+
+# CTFd Application Configuration
+ctfd_container_image = "ctfd/ctfd:latest"
+ctfd_container_port = 8000
+
+# Production Settings (adjust for production)
+enable_deletion_protection = false  # Set to true for production
+backup_retention_period = 7
+enable_monitoring = true
+log_retention_days = 7
+
+# ECR Configuration
+create_ecr_repository = true
